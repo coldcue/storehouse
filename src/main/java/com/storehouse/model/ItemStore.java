@@ -15,7 +15,7 @@ public interface ItemStore {
 
     public Collection<Item> getItems();
 
-    public Item getItem(int id);
+    public Item getItem(String name);
 
     public void removeItem(Item item);
 

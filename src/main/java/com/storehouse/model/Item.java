@@ -8,6 +8,12 @@ public class Item implements Serializable {
     protected long quantity;
     protected int id;
 
+    public Item(String name, String fullName, long quantity) {
+        this.name = name;
+        this.fullName = fullName;
+        this.quantity = quantity;
+    }
+
     public String getFullName() {
         return fullName;
     }
