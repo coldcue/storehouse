@@ -63,4 +63,10 @@ public class ArrayItemStore implements ItemStore {
         items = (ArrayList<Item>) objectInputStream.readObject();
         objectInputStream.close();
     }
+
+    @Override
+    public int getCount() {
+        return items.size();
+    }
+
 }

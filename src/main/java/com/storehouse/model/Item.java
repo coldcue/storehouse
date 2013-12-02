@@ -8,6 +8,28 @@ public class Item implements Serializable {
     protected long quantity;
     protected int id;
 
+    public enum Fields {
+        ID("ID", "getId"), NAME("Name", "getName"), FULLNAME("Full name", "getFullName"), QUANTITY("Qtty", "getQuantity");
+
+        private String name;
+        private String methodName;
+
+        private Fields(String name, String methodName) {
+            this.name = name;
+            this.methodName = methodName;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getMethodName() {
+            return methodName;
+        }
+
+    }
+
+
     public Item(String name, String fullName, long quantity) {
         this.name = name;
         this.fullName = fullName;

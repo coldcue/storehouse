@@ -17,6 +17,8 @@ public interface ItemStore {
 
     public Item getItem(String name);
 
+    public Item getItem(int count);
+
     public void removeItem(Item item);
 
     public void updateItem(Item item);
@@ -25,4 +27,5 @@ public interface ItemStore {
 
     public void load(File file) throws IOException, ClassNotFoundException;
 
+    public int getCount();
 }
