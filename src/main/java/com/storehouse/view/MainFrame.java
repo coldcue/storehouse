@@ -262,6 +262,7 @@ public class MainFrame {
                 for (int row : table.getSelectedRows()) {
                     itemStore.removeItem(itemStore.getItem(row));
                 }
+                statusLabel.setText(table.getSelectedRowCount() + " items deleted");
                 itemData.fireTableDataChanged();
             }
         });
