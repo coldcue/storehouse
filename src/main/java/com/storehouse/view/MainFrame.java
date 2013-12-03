@@ -6,6 +6,7 @@ import sun.awt.OrientableFlowLayout;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -113,12 +114,16 @@ public class MainFrame {
         /**
          * Help menu
          */
-
         JMenu helpMenu = new JMenu("Help");
         JMenuItem about = new JMenuItem("About");
+
+
         about.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /**
+                 * About dialog
+                 */
                 JDialog aboutDialog = new JDialog(frame, "About", true);
                 aboutDialog.setSize(400, 210);
                 aboutDialog.setLocationRelativeTo(null);
@@ -126,12 +131,20 @@ public class MainFrame {
                 GridLayout layout = new GridLayout();
                 layout.setRows(1);
                 layout.setColumns(2);
-                layout.setHgap(20);
-                layout.setVgap(20);
                 aboutDialog.setLayout(layout);
 
-                ImagePanel imagePanel = new ImagePanel(this.getClass().getResourceAsStream("/profile.jpg"),20,20);
+                ImagePanel imagePanel = new ImagePanel(this.getClass().getResourceAsStream("/profile.jpg"), 20, 20);
                 aboutDialog.add(imagePanel);
+
+                JPanel infoPanel = new JPanel();
+                infoPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                infoPanel.add(new JLabel("<html><b><font size=+2>Storehouse</font></b></html>"));
+                infoPanel.add(new JLabel("<html><b><font size=+1>Author:</font></b></html>"));
+                infoPanel.add(new JLabel("<html><b>Széll András</b></html>"));
+                infoPanel.add(new JLabel("<html><b>DP1FGW</b></html>"));
+                aboutDialog.add(infoPanel);
+
                 aboutDialog.setVisible(true);
 
                 imagePanel.paintComponent(aboutDialog.getGraphics());
