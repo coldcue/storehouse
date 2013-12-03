@@ -2,13 +2,18 @@ package com.storehouse.model;
 
 import java.io.Serializable;
 
+/**
+ * This model stores information about things stored in a store
+ */
 public class Item implements Serializable {
     protected String name;
     protected String fullName;
     protected long quantity;
     protected int id;
 
-
+    /**
+     * This enum stores field informations
+     */
     public enum Field {
         ID("ID", "getId", "setId", int.class), NAME("Name", "getName", "setName", String.class), FULLNAME("Full name", "getFullName", "setFullName", String.class), QUANTITY("Quantity", "getQuantity", "setQuantity", long.class);
 

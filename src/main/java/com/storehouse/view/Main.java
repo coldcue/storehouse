@@ -6,12 +6,6 @@ import com.storehouse.model.ItemStore;
 
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Andrew
- * Date: 11/30/13
- * Time: 12:28 AM
- */
 public class Main {
 
     public static MainFrame mainFrame;
