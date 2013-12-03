@@ -12,6 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -75,12 +76,13 @@ public class MainFrame {
          * Set to visible
          */
         frame.setVisible(true);
+
+        statusLabel.setText("Loaded!");
     }
 
     private void initTable(JFrame frame) {
         table = new JTable(new ItemData((itemStore)));
         frame.add(new JScrollPane(table), BorderLayout.CENTER);
-        statusLabel.setText("Table loaded!");
 
         table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -101,8 +103,45 @@ public class MainFrame {
          */
         JMenu fileMenu = new JMenu("File");
 
+
+        /**
+         * New table
+         */
+        JMenuItem newFile = new JMenuItem("New");
+        fileMenu.add(newFile);
+
+        newFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showConfirmDialog(frame, "Are you sure? All unsaved stuff will be lost!", "New store", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (option == 0) {
+                    itemStore.purge();
+                }
+            }
+        });
+
+        /**
+         * Open database file
+         */
         JMenuItem loadFromFile = new JMenuItem("Open...");
         fileMenu.add(loadFromFile);
+
+        loadFromFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser jFileChooser = new JFileChooser(new File(""));
+                jFileChooser.showOpenDialog(frame);
+                jFileChooser.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        File file = jFileChooser.getSelectedFile();
+                        //This is where a real application would open the file.
+                        statusLabel.setText("Opening: " + file.getName());
+                    }
+                });
+            }
+        });
+
         JMenuItem save = new JMenuItem("Save");
         fileMenu.add(save);
         JMenuItem saveAs = new JMenuItem("Save as");
@@ -133,7 +172,7 @@ public class MainFrame {
                 layout.setColumns(2);
                 aboutDialog.setLayout(layout);
 
-                ImagePanel imagePanel = new ImagePanel(this.getClass().getResourceAsStream("/profile.jpg"), 20, 20);
+                ImagePanel imagePanel = new ImagePanel(this.getClass().getResourceAsStream("/icon.png"), 20, 20, 128, 128);
                 aboutDialog.add(imagePanel);
 
                 JPanel infoPanel = new JPanel();

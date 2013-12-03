@@ -28,4 +28,6 @@ public interface ItemStore {
     public void load(File file) throws IOException, ClassNotFoundException;
 
     public int getCount();
+
+    public void purge();
 }

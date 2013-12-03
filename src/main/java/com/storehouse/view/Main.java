@@ -21,7 +21,7 @@ public class Main {
          * Empty itemstore
          */
         ItemStore itemStore = new ArrayItemStore();
-        itemStore.load(new File("test.db"));
+        //itemStore.load(new File("test.db"));
 
         mainFrame = new MainFrame(itemStore);
         mainFrame.init();

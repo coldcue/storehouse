@@ -16,13 +16,15 @@ import java.io.InputStream;
 public class ImagePanel extends JPanel {
 
     private BufferedImage image;
-    private int x, y;
+    private int x, y, w, h;
 
-    public ImagePanel(InputStream inputStream, int x, int y) {
+    public ImagePanel(InputStream inputStream, int x, int y, int w, int h) {
         try {
             image = ImageIO.read(inputStream);
             this.x = x;
             this.y = y;
+            this.w = w;
+            this.h = h;
         } catch (IOException ex) {
             // handle exception...
         }
@@ -31,7 +33,7 @@ public class ImagePanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, x, y, null);
+        g.drawImage(image, x, y, w, h, null);
     }
 
 }

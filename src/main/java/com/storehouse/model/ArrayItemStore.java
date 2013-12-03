@@ -69,4 +69,8 @@ public class ArrayItemStore implements ItemStore {
         return items.size();
     }
 
+    @Override
+    public void purge() {
+        items = new ArrayList<>();
+    }
 }
