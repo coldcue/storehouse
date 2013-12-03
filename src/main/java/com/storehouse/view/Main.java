@@ -1,9 +1,9 @@
 package com.storehouse.view;
 
 import com.storehouse.model.ArrayItemStore;
+import com.storehouse.model.FileManager;
 import com.storehouse.model.ItemStore;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -21,9 +21,10 @@ public class Main {
          * Empty itemstore
          */
         ItemStore itemStore = new ArrayItemStore();
+        FileManager fileManager = new FileManager(itemStore);
         //itemStore.load(new File("test.db"));
 
-        mainFrame = new MainFrame(itemStore);
+        mainFrame = new MainFrame(itemStore, fileManager);
         mainFrame.init();
     }
 }

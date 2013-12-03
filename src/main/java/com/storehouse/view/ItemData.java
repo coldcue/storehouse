@@ -27,7 +27,7 @@ public class ItemData extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return Item.Fields.values().length;
+        return Item.Field.values().length;
     }
 
     @Override
@@ -42,9 +42,9 @@ public class ItemData extends AbstractTableModel {
         return null;
     }
 
-    private Item.Fields getFieldAtColumn(int column) throws NoSuchFieldError {
+    private Item.Field getFieldAtColumn(int column) throws NoSuchFieldError {
         //Search for the field
-        for (Item.Fields field : Item.Fields.values()) {
+        for (Item.Field field : Item.Field.values()) {
             if (field.ordinal() == column) return field;
         }
         throw new NoSuchFieldError();
@@ -52,7 +52,7 @@ public class ItemData extends AbstractTableModel {
 
     private Method getMethodAtColumn(int column) throws NoSuchMethodException {
         //Search for the field
-        return Item.class.getMethod(getFieldAtColumn(column).getMethodName());
+        return Item.class.getMethod(getFieldAtColumn(column).getGetMethodName());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ItemData extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return (getFieldAtColumn(columnIndex) != Item.Fields.ID);
+        return (getFieldAtColumn(columnIndex) != Item.Field.ID);
     }
 
     @Override

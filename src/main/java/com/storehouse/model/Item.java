@@ -8,25 +8,37 @@ public class Item implements Serializable {
     protected long quantity;
     protected int id;
 
-    public enum Fields {
-        ID("ID", "getId"), NAME("Name", "getName"), FULLNAME("Full name", "getFullName"), QUANTITY("Qtty", "getQuantity");
+
+    public enum Field {
+        ID("ID", "getId", "setId", int.class), NAME("Name", "getName", "setName", String.class), FULLNAME("Full name", "getFullName", "setFullName", String.class), QUANTITY("Quantity", "getQuantity", "setQuantity", long.class);
 
         private String name;
-        private String methodName;
+        private String getMethodName;
+        private String setMethodName;
+        private Class clazz;
 
-        private Fields(String name, String methodName) {
+        private Field(String name, String getMethodName, String setMethodName, Class clazz) {
             this.name = name;
-            this.methodName = methodName;
+            this.getMethodName = getMethodName;
+            this.setMethodName = setMethodName;
+            this.clazz = clazz;
         }
 
         public String getName() {
             return name;
         }
 
-        public String getMethodName() {
-            return methodName;
+        public String getGetMethodName() {
+            return getMethodName;
         }
 
+        public String getSetMethodName() {
+            return setMethodName;
+        }
+
+        public Class getClazz() {
+            return clazz;
+        }
     }
 
 
@@ -35,6 +47,10 @@ public class Item implements Serializable {
         this.fullName = fullName;
         this.quantity = quantity;
     }
+
+    public Item() {
+    }
+
 
     public String getFullName() {
         return fullName;
@@ -54,6 +70,10 @@ public class Item implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getQuantity() {

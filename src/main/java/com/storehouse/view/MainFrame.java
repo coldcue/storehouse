@@ -1,5 +1,7 @@
 package com.storehouse.view;
 
+import com.storehouse.model.FileManager;
+import com.storehouse.model.Item;
 import com.storehouse.model.ItemStore;
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import sun.awt.OrientableFlowLayout;
@@ -14,6 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,14 +28,17 @@ import java.io.IOException;
  */
 public class MainFrame {
     private ItemStore itemStore;
+    private FileManager fileManager;
 
     private JLabel statusLabel;
     private JTable table;
     private JButton deleteButton;
     private JFrame frame;
+    private ItemData itemData;
 
-    public MainFrame(ItemStore itemStore) {
+    public MainFrame(ItemStore itemStore, FileManager fileManager) {
         this.itemStore = itemStore;
+        this.fileManager = fileManager;
     }
 
     public void init() {
@@ -60,12 +68,12 @@ public class MainFrame {
         /**
          * Init start panel
          */
-        initStartPanel(frame);
+        initStartPanel();
 
         /**
          * Init Table
          */
-        initTable(frame);
+        initTable();
 
         /**
          * End Panel
@@ -80,8 +88,9 @@ public class MainFrame {
         statusLabel.setText("Loaded!");
     }
 
-    private void initTable(JFrame frame) {
-        table = new JTable(new ItemData((itemStore)));
+    private void initTable() {
+        itemData = new ItemData(itemStore);
+        table = new JTable(itemData);
         frame.add(new JScrollPane(table), BorderLayout.CENTER);
 
         table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -116,6 +125,8 @@ public class MainFrame {
                 int option = JOptionPane.showConfirmDialog(frame, "Are you sure? All unsaved stuff will be lost!", "New store", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (option == 0) {
                     itemStore.purge();
+                    itemData.fireTableDataChanged();
+                    fileManager.close();
                 }
             }
         });
@@ -130,22 +141,51 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser jFileChooser = new JFileChooser(new File(""));
-                jFileChooser.showOpenDialog(frame);
-                jFileChooser.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        File file = jFileChooser.getSelectedFile();
-                        //This is where a real application would open the file.
-                        statusLabel.setText("Opening: " + file.getName());
+                int ret = jFileChooser.showOpenDialog(frame);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File file = jFileChooser.getSelectedFile();
+                    statusLabel.setText("Opening: " + file.getName());
+                    try {
+                        fileManager.open(file);
+                        itemData.fireTableDataChanged();
+                    } catch (IOException | ClassNotFoundException e1) {
+                        JOptionPane.showMessageDialog(frame, "Can't open the file! Maybe it's not a real database...", "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                });
+                    statusLabel.setText("Database loaded from: " + file.getName());
+                }
             }
         });
 
+        /**
+         * Save or save as
+         */
         JMenuItem save = new JMenuItem("Save");
         fileMenu.add(save);
+
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (fileManager.isOpened()) {
+                    try {
+                        fileManager.save();
+                        statusLabel.setText("Everything is saved!");
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                } else
+                    saveAs();
+            }
+        });
+
         JMenuItem saveAs = new JMenuItem("Save as");
         fileMenu.add(saveAs);
+
+        saveAs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAs();
+            }
+        });
 
         menuBar.add(fileMenu);
 
@@ -197,7 +237,7 @@ public class MainFrame {
         return menuBar;
     }
 
-    private void initStartPanel(JFrame frame) {
+    private void initStartPanel() {
         /**
          * Start Panel
          */
@@ -207,10 +247,115 @@ public class MainFrame {
         frame.add(startPanel, BorderLayout.PAGE_START);
 
         JButton addItemButton = new JButton("New item");
+        addItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newItemDialog();
+            }
+        });
         startPanel.add(addItemButton);
 
         deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int row : table.getSelectedRows()) {
+                    itemStore.removeItem(itemStore.getItem(row));
+                }
+                itemData.fireTableDataChanged();
+            }
+        });
         deleteButton.setEnabled(false);
         startPanel.add(deleteButton);
+    }
+
+
+    private void saveAs() {
+        final JFileChooser jFileChooser = new JFileChooser(new File("database.db"));
+        int ret = jFileChooser.showSaveDialog(frame);
+        if (ret == JFileChooser.APPROVE_OPTION) {
+            File file = jFileChooser.getSelectedFile();
+            statusLabel.setText("Saving to: " + file.getName());
+            try {
+                fileManager.save(file);
+            } catch (IOException e) {
+                statusLabel.setText("Save failed to: " + file.getName());
+            }
+            statusLabel.setText("Database saved to: " + file.getName());
+        }
+    }
+
+    private void newItemDialog() {
+        final JDialog dialog = new JDialog(frame, "New item", true);
+        dialog.setSize(300, 400);
+        dialog.setLocationRelativeTo(null);
+        dialog.setLayout(new BorderLayout());
+
+        /**
+         * Fields panel
+         */
+        JPanel fieldsPanel = new JPanel();
+        BoxLayout layout = new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS);
+        fieldsPanel.setLayout(layout);
+
+        final Map<Item.Field, JTextField> textFieldMap = new HashMap<>();
+
+        for (Item.Field field : Item.Field.values()) {
+            if (field == Item.Field.ID) continue;
+            fieldsPanel.add(new JLabel(field.getName()));
+            JTextField textField = new JTextField();
+            textFieldMap.put(field, textField);
+            fieldsPanel.add(textField);
+        }
+
+        dialog.add(fieldsPanel, BorderLayout.CENTER);
+
+        JPanel endPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        dialog.add(endPanel, BorderLayout.PAGE_END);
+        /**
+         * Add button
+         */
+        JButton addButton = new JButton("Add");
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Item item = new Item();
+
+                    for (Map.Entry<Item.Field, JTextField> entry : textFieldMap.entrySet()) {
+                        Item.Field field = entry.getKey();
+                        String text = entry.getValue().getText();
+                        Method method = Item.class.getMethod(field.getSetMethodName(), field.getClazz());
+
+                        if (field.getClazz() == int.class) {
+                            method.invoke(item, Integer.parseInt(text));
+                        } else if (field.getClazz() == long.class) {
+                            method.invoke(item, Long.parseLong(text));
+                        } else method.invoke(item, text);
+                    }
+
+                    itemStore.addItem(item);
+                    itemData.fireTableDataChanged();
+                    dialog.setVisible(false);
+                } catch (Exception ignored) {
+                    JOptionPane.showMessageDialog(dialog, "Something is missing or mistyped!", "Wrong input(s)", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        endPanel.add(addButton);
+
+        /**
+         * Cancel button
+         */
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+            }
+        });
+        endPanel.add(cancelButton);
+
+        dialog.setVisible(true);
     }
 }
