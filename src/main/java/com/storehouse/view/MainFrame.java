@@ -328,9 +328,9 @@ public class MainFrame {
                         String text = entry.getValue().getText();
                         Method method = Item.class.getMethod(field.getSetMethodName(), field.getClazz());
 
-                        if (field.getClazz() == int.class) {
+                        if (field.getClazz() == Integer.class) {
                             method.invoke(item, Integer.parseInt(text));
-                        } else if (field.getClazz() == long.class) {
+                        } else if (field.getClazz() == Long.class) {
                             method.invoke(item, Long.parseLong(text));
                         } else method.invoke(item, text);
                     }

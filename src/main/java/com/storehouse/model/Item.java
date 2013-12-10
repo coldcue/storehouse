@@ -8,14 +8,14 @@ import java.io.Serializable;
 public class Item implements Serializable {
     protected String name;
     protected String fullName;
-    protected long quantity;
-    protected int id;
+    protected Long quantity;
+    protected Integer id;
 
     /**
      * This enum stores field informations
      */
     public enum Field {
-        ID("ID", "getId", "setId", int.class), NAME("Name", "getName", "setName", String.class), FULLNAME("Full name", "getFullName", "setFullName", String.class), QUANTITY("Quantity", "getQuantity", "setQuantity", long.class);
+        ID("ID", "getId", "setId", Integer.class), NAME("Name", "getName", "setName", String.class), FULLNAME("Full name", "getFullName", "setFullName", String.class), QUANTITY("Quantity", "getQuantity", "setQuantity", Long.class);
 
         private String name;
         private String getMethodName;
@@ -65,14 +65,6 @@ public class Item implements Serializable {
         this.fullName = fullName;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -81,12 +73,20 @@ public class Item implements Serializable {
         this.name = name;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     @Override
